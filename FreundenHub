@@ -1,17 +1,17 @@
 -- ═══════════════════════════════════════════════════════════════
--- ULTIMATE TELEPORT & ESP GUI
--- Features: Save Locations, Chain TP, Player TP, ESP, Rejoin, Friend Join
--- Toggle: Strg (Ctrl) zum Öffnen/Schließen
+-- EYZHUB V2 - MADE BY TTTSKORPION
+-- Style Inspired by image_18a4bf.png (Cute Pink/Y2K Aesthetic)
 -- ═══════════════════════════════════════════════════════════════
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
+local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
 -- ═══════════════════════════════════════════════════════════════
--- HAUPTVARIABLEN
+-- MAIN VARIABLES
 -- ═══════════════════════════════════════════════════════════════
 
 local SavedLocations = {}
@@ -20,68 +20,81 @@ local ChainSave2 = nil
 local ESPEnabled = false
 local ESPObjects = {}
 local GuiVisible = true
+local FlySpeed = 260 -- Fast bypass flight speed
 
 -- ═══════════════════════════════════════════════════════════════
--- GUI ERSTELLEN
+-- CUTE PINK GUI CREATION (image_18a4bf.png Inspired)
 -- ═══════════════════════════════════════════════════════════════
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "UltimateTeleportGUI"
+ScreenGui.Name = "EyzHubV2"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- Hauptframe
+-- Bubbly Pink Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 320, 0, 450)
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -225)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MainFrame.Size = UDim2.new(0, 320, 0, 460)
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -230)
+MainFrame.BackgroundColor3 = Color3.fromRGB(244, 98, 160) -- Bubbly Pink Background
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.CornerRadius = UDim.new(0, 20) -- Bubbly rounded corners
 MainCorner.Parent = MainFrame
 
 local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Color3.fromRGB(100, 100, 255)
-MainStroke.Thickness = 2
+MainStroke.Color = Color3.fromRGB(255, 255, 255) -- White contrast border
+MainStroke.Thickness = 3
 MainStroke.Parent = MainFrame
 
--- Titelleiste
+-- Top Title Bar
 local TitleBar = Instance.new("Frame")
 TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 40)
-TitleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+TitleBar.Size = UDim2.new(1, 0, 0, 45)
+TitleBar.BackgroundColor3 = Color3.fromRGB(219, 63, 129) -- Darker Pink
 TitleBar.BorderSizePixel = 0
 TitleBar.Parent = MainFrame
 
 local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.CornerRadius = UDim.new(0, 20)
 TitleCorner.Parent = TitleBar
 
+-- Subtitle for Credits
+local CreditsLabel = Instance.new("TextLabel")
+CreditsLabel.Size = UDim2.new(1, 0, 0.4, 0)
+CreditsLabel.Position = UDim2.new(0, 0, 0.6, 0)
+CreditsLabel.BackgroundTransparency = 1
+CreditsLabel.Text = "★ Made by Freunden1234 ★"
+CreditsLabel.TextColor3 = Color3.fromRGB(255, 235, 133) -- Yellow Star Accent Color
+CreditsLabel.Font = Enum.Font.GothamBold
+CreditsLabel.TextSize = 11
+CreditsLabel.Parent = TitleBar
+
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Size = UDim2.new(1, 0, 1, 0)
+TitleLabel.Size = UDim2.new(1, 0, 0.6, 0)
+TitleLabel.Position = UDim2.new(0, 0, 0, 2)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "⚡ ULTIMATE TP GUI ⚡"
+TitleLabel.Text = "🎀 EyzHub V2 🎀"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 16
+TitleLabel.Font = Enum.Font.FredokaOne or Enum.Font.GothamBold
+TitleLabel.TextSize = 18
 TitleLabel.Parent = TitleBar
 
--- Scrollbarer Container
+-- Scrolling Content
 local ScrollFrame = Instance.new("ScrollingFrame")
 ScrollFrame.Name = "ScrollFrame"
-ScrollFrame.Size = UDim2.new(1, -20, 1, -50)
-ScrollFrame.Position = UDim2.new(0, 10, 0, 45)
+ScrollFrame.Size = UDim2.new(1, -20, 1, -65)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 55)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.BorderSizePixel = 0
-ScrollFrame.ScrollBarThickness = 8
-ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 255)
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 900)
+ScrollFrame.ScrollBarThickness = 6
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 960)
 ScrollFrame.Parent = MainFrame
 
 local ListLayout = Instance.new("UIListLayout")
@@ -90,29 +103,29 @@ ListLayout.Padding = UDim.new(0, 8)
 ListLayout.Parent = ScrollFrame
 
 -- ═══════════════════════════════════════════════════════════════
--- HILFSFUNKTIONEN
+-- UTILITY FUNCTIONS
 -- ═══════════════════════════════════════════════════════════════
 
 local function CreateSection(name, layoutOrder)
     local Section = Instance.new("Frame")
     Section.Name = name
-    Section.Size = UDim2.new(1, -10, 0, 30)
-    Section.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    Section.Size = UDim2.new(1, -10, 0, 28)
+    Section.BackgroundColor3 = Color3.fromRGB(219, 63, 129)
     Section.BorderSizePixel = 0
     Section.LayoutOrder = layoutOrder
     Section.Parent = ScrollFrame
     
     local SectionCorner = Instance.new("UICorner")
-    SectionCorner.CornerRadius = UDim.new(0, 8)
+    SectionCorner.CornerRadius = UDim.new(0, 10)
     SectionCorner.Parent = Section
     
     local SectionLabel = Instance.new("TextLabel")
     SectionLabel.Size = UDim2.new(1, 0, 1, 0)
     SectionLabel.BackgroundTransparency = 1
-    SectionLabel.Text = "═══ " .. name .. " ═══"
-    SectionLabel.TextColor3 = Color3.fromRGB(150, 150, 255)
+    SectionLabel.Text = "★ " .. name .. " ★"
+    SectionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     SectionLabel.Font = Enum.Font.GothamBold
-    SectionLabel.TextSize = 12
+    SectionLabel.TextSize = 11
     SectionLabel.Parent = Section
     
     return Section
@@ -121,66 +134,74 @@ end
 local function CreateButton(text, layoutOrder, callback)
     local Button = Instance.new("TextButton")
     Button.Name = text
-    Button.Size = UDim2.new(1, -10, 0, 35)
-    Button.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    Button.Size = UDim2.new(1, -10, 0, 36)
+    Button.BackgroundColor3 = Color3.fromRGB(255, 140, 190) -- Light Bright Pink Button
     Button.BorderSizePixel = 0
     Button.Text = text
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Font = Enum.Font.GothamSemibold
-    Button.TextSize = 14
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 13
     Button.LayoutOrder = layoutOrder
     Button.AutoButtonColor = true
     Button.Parent = ScrollFrame
     
     local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    ButtonCorner.CornerRadius = UDim.new(0, 12)
     ButtonCorner.Parent = Button
     
-    Button.MouseEnter:Connect(function()
-        Button.BackgroundColor3 = Color3.fromRGB(80, 80, 120)
-    end)
+    local ButtonStroke = Instance.new("UIStroke")
+    ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+    ButtonStroke.Thickness = 1.5
+    ButtonStroke.Parent = Button
     
-    Button.MouseLeave:Connect(function()
-        Button.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
-    end)
-    
+    Button.MouseEnter:Connect(function() Button.BackgroundColor3 = Color3.fromRGB(255, 170, 210) end)
+    Button.MouseLeave:Connect(function() Button.BackgroundColor3 = Color3.fromRGB(255, 140, 190) end)
     Button.MouseButton1Click:Connect(callback)
     
     return Button
 end
 
-local function GetCharacter()
-    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-end
-
 local function GetHumanoidRootPart()
-    local char = GetCharacter()
-    return char:FindFirstChild("HumanoidRootPart")
+    local char = LocalPlayer.Character
+    return char and char:FindFirstChild("HumanoidRootPart")
 end
 
-local function TeleportTo(position)
+-- SMOOTH BYPASS FLIGHT METHOD
+local function FlyTo(targetPosition)
     local hrp = GetHumanoidRootPart()
-    if hrp then
-        hrp.CFrame = CFrame.new(position)
-    end
+    if not hrp then return end
+    
+    local distance = (targetPosition - hrp.Position).Magnitude
+    local duration = distance / FlySpeed
+    
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+    local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPosition)})
+    
+    tween:Play()
+    tween.Completed:Wait()
 end
 
 local function Notify(text)
-    -- Einfache Notification
     local NotifyGui = Instance.new("TextLabel")
-    NotifyGui.Size = UDim2.new(0, 300, 0, 40)
-    NotifyGui.Position = UDim2.new(0.5, -150, 0, 10)
-    NotifyGui.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    NotifyGui.Size = UDim2.new(0, 280, 0, 40)
+    NotifyGui.Position = UDim2.new(0.5, -140, 0, 15)
+    NotifyGui.BackgroundColor3 = Color3.fromRGB(219, 63, 129)
     NotifyGui.BorderSizePixel = 0
-    NotifyGui.Text = text
-    NotifyGui.TextColor3 = Color3.fromRGB(100, 255, 100)
+    NotifyGui.Text = "💕 " .. text
+    NotifyGui.TextColor3 = Color3.fromRGB(255, 255, 255)
     NotifyGui.Font = Enum.Font.GothamBold
-    NotifyGui.TextSize = 14
+    NotifyGui.TextSize = 13
+    NotifyGui.ZIndex = 100
     NotifyGui.Parent = ScreenGui
     
     local NotifyCorner = Instance.new("UICorner")
-    NotifyCorner.CornerRadius = UDim.new(0, 8)
+    NotifyCorner.CornerRadius = UDim.new(0, 12)
     NotifyCorner.Parent = NotifyGui
+    
+    local NotifyStroke = Instance.new("UIStroke")
+    NotifyStroke.Color = Color3.fromRGB(255, 255, 255)
+    NotifyStroke.Thickness = 2
+    NotifyStroke.Parent = NotifyGui
     
     task.delay(2, function()
         NotifyGui:Destroy()
@@ -216,63 +237,61 @@ end
 local function CreateSaveEntry(index)
     local Entry = Instance.new("Frame")
     Entry.Name = "Save_" .. index
-    Entry.Size = UDim2.new(1, 0, 0, 30)
-    Entry.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
+    Entry.Size = UDim2.new(1, 0, 0, 32)
+    Entry.BackgroundColor3 = Color3.fromRGB(255, 140, 190)
     Entry.BorderSizePixel = 0
     Entry.LayoutOrder = index
     Entry.Parent = SavesContainer
     
     local EntryCorner = Instance.new("UICorner")
-    EntryCorner.CornerRadius = UDim.new(0, 6)
+    EntryCorner.CornerRadius = UDim.new(0, 10)
     EntryCorner.Parent = Entry
     
     local Label = Instance.new("TextLabel")
     Label.Size = UDim2.new(0, 80, 1, 0)
-    Label.Position = UDim2.new(0, 5, 0, 0)
+    Label.Position = UDim2.new(0, 10, 0, 0)
     Label.BackgroundTransparency = 1
-    Label.Text = "Save " .. index
-    Label.TextColor3 = Color3.fromRGB(200, 200, 200)
-    Label.Font = Enum.Font.Gotham
+    Label.Text = "Position " .. index
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.GothamBold
     Label.TextSize = 12
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Entry
     
     local TpButton = Instance.new("TextButton")
-    TpButton.Size = UDim2.new(0, 50, 0, 22)
-    TpButton.Position = UDim2.new(1, -115, 0.5, -11)
-    TpButton.BackgroundColor3 = Color3.fromRGB(80, 150, 80)
+    TpButton.Size = UDim2.new(0, 55, 0, 24)
+    TpButton.Position = UDim2.new(1, -125, 0.5, -12)
+    TpButton.BackgroundColor3 = Color3.fromRGB(255, 235, 133) -- Yellow Accent Fly
     TpButton.BorderSizePixel = 0
-    TpButton.Text = "TP"
-    TpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TpButton.Text = "FLY"
+    TpButton.TextColor3 = Color3.fromRGB(219, 63, 129)
     TpButton.Font = Enum.Font.GothamBold
     TpButton.TextSize = 11
     TpButton.Parent = Entry
     
     local TpCorner = Instance.new("UICorner")
-    TpCorner.CornerRadius = UDim.new(0, 4)
+    TpCorner.CornerRadius = UDim.new(0, 6)
     TpCorner.Parent = TpButton
     
     local DeleteButton = Instance.new("TextButton")
-    DeleteButton.Size = UDim2.new(0, 50, 0, 22)
-    DeleteButton.Position = UDim2.new(1, -60, 0.5, -11)
-    DeleteButton.BackgroundColor3 = Color3.fromRGB(150, 60, 60)
+    DeleteButton.Size = UDim2.new(0, 55, 0, 24)
+    DeleteButton.Position = UDim2.new(1, -65, 0.5, -12)
+    DeleteButton.BackgroundColor3 = Color3.fromRGB(219, 63, 129)
     DeleteButton.BorderSizePixel = 0
-    DeleteButton.Text = "X"
+    DeleteButton.Text = "REMOVE"
     DeleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     DeleteButton.Font = Enum.Font.GothamBold
-    DeleteButton.TextSize = 11
+    DeleteButton.TextSize = 9
     DeleteButton.Parent = Entry
     
     local DeleteCorner = Instance.new("UICorner")
-    DeleteCorner.CornerRadius = UDim.new(0, 4)
+    DeleteCorner.CornerRadius = UDim.new(0, 6)
     DeleteCorner.Parent = DeleteButton
     
     TpButton.MouseButton1Click:Connect(function()
         if SavedLocations[index] then
-            TeleportTo(SavedLocations[index])
-            Notify("Teleportiert zu Save " .. index .. "!")
-        else
-            Notify("Save " .. index .. " ist leer!")
+            FlyTo(SavedLocations[index])
+            Notify("Flying to Save " .. index)
         end
     end)
     
@@ -280,7 +299,7 @@ local function CreateSaveEntry(index)
         SavedLocations[index] = nil
         Entry:Destroy()
         UpdateSavesContainerSize()
-        Notify("Save " .. index .. " gelöscht!")
+        Notify("Deleted Save " .. index)
     end)
     
     UpdateSavesContainerSize()
@@ -288,40 +307,39 @@ local function CreateSaveEntry(index)
 end
 
 -- ═══════════════════════════════════════════════════════════════
--- PLAYER DROPDOWN FÜR TP TO PLAYER
+-- PLAYER DROPDOWN
 -- ═══════════════════════════════════════════════════════════════
 
 local PlayerDropdownOpen = false
-local PlayerDropdownFrame = nil
 local SelectedPlayer = nil
 
 local function CreatePlayerDropdown(parent, layoutOrder)
     local Container = Instance.new("Frame")
     Container.Name = "PlayerSelector"
-    Container.Size = UDim2.new(1, -10, 0, 35)
+    Container.Size = UDim2.new(1, -10, 0, 36)
     Container.BackgroundTransparency = 1
     Container.LayoutOrder = layoutOrder
     Container.Parent = parent
     
     local DropdownButton = Instance.new("TextButton")
-    DropdownButton.Size = UDim2.new(1, 0, 0, 35)
-    DropdownButton.BackgroundColor3 = Color3.fromRGB(50, 50, 75)
+    DropdownButton.Size = UDim2.new(1, 0, 0, 36)
+    DropdownButton.BackgroundColor3 = Color3.fromRGB(255, 140, 190)
     DropdownButton.BorderSizePixel = 0
-    DropdownButton.Text = "▼ Spieler auswählen..."
+    DropdownButton.Text = "▼ Select Player..."
     DropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    DropdownButton.Font = Enum.Font.Gotham
+    DropdownButton.Font = Enum.Font.GothamBold
     DropdownButton.TextSize = 13
     DropdownButton.Parent = Container
     
     local DropdownCorner = Instance.new("UICorner")
-    DropdownCorner.CornerRadius = UDim.new(0, 8)
+    DropdownCorner.CornerRadius = UDim.new(0, 12)
     DropdownCorner.Parent = DropdownButton
     
     local DropdownList = Instance.new("Frame")
     DropdownList.Name = "DropdownList"
     DropdownList.Size = UDim2.new(1, 0, 0, 0)
     DropdownList.Position = UDim2.new(0, 0, 1, 5)
-    DropdownList.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+    DropdownList.BackgroundColor3 = Color3.fromRGB(219, 63, 129)
     DropdownList.BorderSizePixel = 0
     DropdownList.ClipsDescendants = true
     DropdownList.Visible = false
@@ -329,7 +347,7 @@ local function CreatePlayerDropdown(parent, layoutOrder)
     DropdownList.Parent = DropdownButton
     
     local ListCorner = Instance.new("UICorner")
-    ListCorner.CornerRadius = UDim.new(0, 8)
+    ListCorner.CornerRadius = UDim.new(0, 12)
     ListCorner.Parent = DropdownList
     
     local PlayerListLayout = Instance.new("UIListLayout")
@@ -339,9 +357,7 @@ local function CreatePlayerDropdown(parent, layoutOrder)
     
     local function RefreshPlayerList()
         for _, child in pairs(DropdownList:GetChildren()) do
-            if child:IsA("TextButton") then
-                child:Destroy()
-            end
+            if child:IsA("TextButton") then child:Destroy() end
         end
         
         local playerCount = 0
@@ -349,19 +365,19 @@ local function CreatePlayerDropdown(parent, layoutOrder)
             if player ~= LocalPlayer then
                 playerCount = playerCount + 1
                 local PlayerButton = Instance.new("TextButton")
-                PlayerButton.Size = UDim2.new(1, -4, 0, 25)
+                PlayerButton.Size = UDim2.new(1, -4, 0, 26)
                 PlayerButton.Position = UDim2.new(0, 2, 0, 0)
-                PlayerButton.BackgroundColor3 = Color3.fromRGB(55, 55, 80)
+                PlayerButton.BackgroundColor3 = Color3.fromRGB(255, 140, 190)
                 PlayerButton.BorderSizePixel = 0
                 PlayerButton.Text = player.Name
                 PlayerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-                PlayerButton.Font = Enum.Font.Gotham
-                PlayerButton.TextSize = 12
+                PlayerButton.Font = Enum.Font.GothamBold
+                PlayerButton.TextSize = 11
                 PlayerButton.ZIndex = 11
                 PlayerButton.Parent = DropdownList
                 
                 local PBCorner = Instance.new("UICorner")
-                PBCorner.CornerRadius = UDim.new(0, 4)
+                PBCorner.CornerRadius = UDim.new(0, 6)
                 PBCorner.Parent = PlayerButton
                 
                 PlayerButton.MouseButton1Click:Connect(function()
@@ -369,23 +385,21 @@ local function CreatePlayerDropdown(parent, layoutOrder)
                     DropdownButton.Text = "▼ " .. player.Name
                     DropdownList.Visible = false
                     PlayerDropdownOpen = false
-                    Container.Size = UDim2.new(1, -10, 0, 35)
+                    Container.Size = UDim2.new(1, -10, 0, 36)
                 end)
             end
         end
-        
-        DropdownList.Size = UDim2.new(1, 0, 0, math.min(playerCount * 27, 150))
+        DropdownList.Size = UDim2.new(1, 0, 0, math.min(playerCount * 28, 150))
     end
     
     DropdownButton.MouseButton1Click:Connect(function()
         PlayerDropdownOpen = not PlayerDropdownOpen
         DropdownList.Visible = PlayerDropdownOpen
-        
         if PlayerDropdownOpen then
             RefreshPlayerList()
-            Container.Size = UDim2.new(1, -10, 0, 35 + DropdownList.Size.Y.Offset + 5)
+            Container.Size = UDim2.new(1, -10, 0, 36 + DropdownList.Size.Y.Offset + 5)
         else
-            Container.Size = UDim2.new(1, -10, 0, 35)
+            Container.Size = UDim2.new(1, -10, 0, 36)
         end
     end)
     
@@ -397,343 +411,234 @@ end
 -- ═══════════════════════════════════════════════════════════════
 
 local function CreateESP(player)
-    if player == LocalPlayer then return end
-    if ESPObjects[player] then return end
+    if player == LocalPlayer or ESPObjects[player] then return end
     
-    local espData = {}
+    local espData = { Billboard = nil, DistanceLabel = nil, Highlight = nil }
     
-    local function UpdateESP()
-        if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
-            return
-        end
+    local function SetupElements(char)
+        local hrp = char:WaitForChild("HumanoidRootPart", 5)
+        local humanoid = char:WaitForChild("Humanoid", 5)
+        if not hrp or not humanoid then return end
         
-        local hrp = player.Character.HumanoidRootPart
-        local humanoid = player.Character:FindFirstChild("Humanoid")
+        local Billboard = Instance.new("BillboardGui")
+        Billboard.Size = UDim2.new(0, 150, 0, 50)
+        Billboard.StudsOffset = Vector3.new(0, 3, 0)
+        Billboard.AlwaysOnTop = true
+        Billboard.Parent = hrp
         
-        -- Billboard für Name und Distanz
-        if not espData.Billboard then
-            local Billboard = Instance.new("BillboardGui")
-            Billboard.Name = "ESP_" .. player.Name
-            Billboard.Size = UDim2.new(0, 150, 0, 50)
-            Billboard.StudsOffset = Vector3.new(0, 3, 0)
-            Billboard.AlwaysOnTop = true
-            Billboard.Parent = hrp
-            
-            local NameLabel = Instance.new("TextLabel")
-            NameLabel.Size = UDim2.new(1, 0, 0.5, 0)
-            NameLabel.BackgroundTransparency = 1
-            NameLabel.Text = player.Name
-            NameLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            NameLabel.Font = Enum.Font.GothamBold
-            NameLabel.TextSize = 14
-            NameLabel.TextStrokeTransparency = 0.5
-            NameLabel.Parent = Billboard
-            
-            local DistanceLabel = Instance.new("TextLabel")
-            DistanceLabel.Name = "Distance"
-            DistanceLabel.Size = UDim2.new(1, 0, 0.5, 0)
-            DistanceLabel.Position = UDim2.new(0, 0, 0.5, 0)
-            DistanceLabel.BackgroundTransparency = 1
-            DistanceLabel.Text = "0m"
-            DistanceLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
-            DistanceLabel.Font = Enum.Font.Gotham
-            DistanceLabel.TextSize = 12
-            DistanceLabel.TextStrokeTransparency = 0.5
-            DistanceLabel.Parent = Billboard
-            
-            espData.Billboard = Billboard
-            espData.DistanceLabel = DistanceLabel
-        end
+        local NameLabel = Instance.new("TextLabel")
+        NameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+        NameLabel.BackgroundTransparency = 1
+        NameLabel.Text = player.Name
+        NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        NameLabel.Font = Enum.Font.GothamBold
+        NameLabel.TextSize = 13
+        NameLabel.TextStrokeColor3 = Color3.fromRGB(219, 63, 129)
+        NameLabel.TextStrokeTransparency = 0
+        NameLabel.Parent = Billboard
         
-        -- Highlight
-        if not espData.Highlight then
-            local Highlight = Instance.new("Highlight")
-            Highlight.Name = "ESP_Highlight"
-            Highlight.FillColor = Color3.fromRGB(255, 50, 50)
-            Highlight.FillTransparency = 0.7
-            Highlight.OutlineColor = Color3.fromRGB(255, 100, 100)
-            Highlight.OutlineTransparency = 0
-            Highlight.Parent = player.Character
-            
-            espData.Highlight = Highlight
-        end
+        local DistanceLabel = Instance.new("TextLabel")
+        DistanceLabel.Size = UDim2.new(1, 0, 0.5, 0)
+        DistanceLabel.Position = UDim2.new(0, 0, 0.5, 0)
+        DistanceLabel.BackgroundTransparency = 1
+        DistanceLabel.Text = "Loading..."
+        DistanceLabel.TextColor3 = Color3.fromRGB(255, 235, 133)
+        DistanceLabel.Font = Enum.Font.GothamBold
+        DistanceLabel.TextSize = 11
+        DistanceLabel.TextStrokeColor3 = Color3.fromRGB(219, 63, 129)
+        DistanceLabel.TextStrokeTransparency = 0
+        DistanceLabel.Parent = Billboard
         
-        -- Distanz updaten
-        local localHRP = GetHumanoidRootPart()
-        if localHRP and espData.DistanceLabel then
-            local distance = (hrp.Position - localHRP.Position).Magnitude
-            espData.DistanceLabel.Text = string.format("%.0fm", distance)
-            
-            -- Health anzeigen
-            if humanoid then
-                local health = math.floor(humanoid.Health)
-                local maxHealth = math.floor(humanoid.MaxHealth)
-                espData.DistanceLabel.Text = string.format("%.0fm | %d/%d HP", distance, health, maxHealth)
-            end
-        end
+        local Highlight = Instance.new("Highlight")
+        Highlight.FillColor = Color3.fromRGB(255, 140, 190)
+        Highlight.FillTransparency = 0.6
+        Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+        Highlight.OutlineTransparency = 0
+        Highlight.Parent = char
+        
+        espData.Billboard = Billboard
+        espData.DistanceLabel = DistanceLabel
+        espData.Highlight = Highlight
     end
-    
+
+    if player.Character then SetupElements(player.Character) end
+    espData.CharConnect = player.CharacterAdded:Connect(SetupElements)
     ESPObjects[player] = espData
-    
-    -- Update-Loop für diesen Spieler
-    espData.Connection = RunService.RenderStepped:Connect(function()
-        if ESPEnabled then
-            UpdateESP()
-        end
-    end)
-    
-    player.CharacterAdded:Connect(function()
-        task.wait(1)
-        if ESPEnabled then
-            -- ESP neu erstellen
-            if espData.Billboard then espData.Billboard:Destroy() espData.Billboard = nil end
-            if espData.Highlight then espData.Highlight:Destroy() espData.Highlight = nil end
-        end
-    end)
 end
 
 local function RemoveESP(player)
-    if ESPObjects[player] then
-        if ESPObjects[player].Billboard then
-            ESPObjects[player].Billboard:Destroy()
-        end
-        if ESPObjects[player].Highlight then
-            ESPObjects[player].Highlight:Destroy()
-        end
-        if ESPObjects[player].Connection then
-            ESPObjects[player].Connection:Disconnect()
-        end
+    local data = ESPObjects[player]
+    if data then
+        if data.Billboard then data.Billboard:Destroy() end
+        if data.Highlight then data.Highlight:Destroy() end
+        if data.CharConnect then data.CharConnect:Disconnect() end
         ESPObjects[player] = nil
     end
 end
 
+RunService.RenderStepped:Connect(function()
+    if not ESPEnabled then return end
+    local localHrp = GetHumanoidRootPart()
+    if not localHrp then return end
+    
+    for player, data in pairs(ESPObjects) do
+        if player.Character and data.DistanceLabel then
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            local hum = player.Character:FindFirstChild("Humanoid")
+            if hrp and hum then
+                local dist = (hrp.Position - localHrp.Position).Magnitude
+                data.DistanceLabel.Text = string.format("%.0fm | %d/%d HP", dist, math.floor(hum.Health), math.floor(hum.MaxHealth))
+            end
+        end
+    end
+end)
+
 local function ToggleESP(enabled)
     ESPEnabled = enabled
-    
     if enabled then
-        for _, player in pairs(Players:GetPlayers()) do
-            CreateESP(player)
-        end
+        for _, player in pairs(Players:GetPlayers()) do CreateESP(player) end
     else
-        for player, _ in pairs(ESPObjects) do
-            RemoveESP(player)
-        end
+        for player, _ in pairs(ESPObjects) do RemoveESP(player) end
     end
 end
 
--- Neue Spieler tracken
-Players.PlayerAdded:Connect(function(player)
-    if ESPEnabled then
-        task.wait(2)
-        CreateESP(player)
-    end
-end)
-
-Players.PlayerRemoving:Connect(function(player)
-    RemoveESP(player)
-end)
+Players.PlayerAdded:Connect(function(p) if ESPEnabled then CreateESP(p) end end)
+Players.PlayerRemoving:Connect(RemoveESP)
 
 -- ═══════════════════════════════════════════════════════════════
--- GUI ELEMENTE ERSTELLEN
+-- INTERFACE BUTTONS
 -- ═══════════════════════════════════════════════════════════════
 
--- Section: Location Saves
-CreateSection("📍 LOCATION SAVES", 1)
-
+CreateSection("LOCATION SAVES", 1)
 local saveIndex = 0
-CreateButton("➕ Neue Position speichern", 2, function()
+CreateButton("➕ Save Current Location", 2, function()
     local hrp = GetHumanoidRootPart()
     if hrp then
         saveIndex = saveIndex + 1
         SavedLocations[saveIndex] = hrp.Position
         CreateSaveEntry(saveIndex)
-        Notify("Position " .. saveIndex .. " gespeichert!")
+        Notify("Saved Location " .. saveIndex)
     end
 end)
 
--- Section: Chain Teleport
-CreateSection("⛓️ CHAIN TELEPORT", 10)
-
-local chainSave1Set = false
-local chainSave2Set = false
-
-local ChainSave1Btn = CreateButton("🔴 Chain Save 1 setzen", 11, function()
+CreateSection("CHAIN TELEPORT", 10)
+CreateButton("💖 Set Chain Position 1", 11, function()
     local hrp = GetHumanoidRootPart()
-    if hrp then
-        ChainSave1 = hrp.Position
-        chainSave1Set = true
-        Notify("Chain Save 1 gesetzt!")
-    end
+    if hrp then ChainSave1 = hrp.Position Notify("Chain 1 Set!") end
 end)
-
-local ChainSave2Btn = CreateButton("🔵 Chain Save 2 setzen", 12, function()
+CreateButton("💖 Set Chain Position 2", 12, function()
     local hrp = GetHumanoidRootPart()
-    if hrp then
-        ChainSave2 = hrp.Position
-        chainSave2Set = true
-        Notify("Chain Save 2 gesetzt!")
-    end
+    if hrp then ChainSave2 = hrp.Position Notify("Chain 2 Set!") end
 end)
-
-CreateButton("⚡ CHAIN TP AUSFÜHREN", 13, function()
+CreateButton("⚡ EXECUTE CHAIN (2S DELAY)", 13, function()
     if ChainSave1 and ChainSave2 then
-        TeleportTo(ChainSave1)
-        Notify("TP zu Save 1...")
-        task.wait(1)
-        TeleportTo(ChainSave2)
-        Notify("TP zu Save 2!")
+        Notify("Flying to Location 1...")
+        FlyTo(ChainSave1)
+        
+        Notify("Waiting 2 Seconds...")
+        task.wait(2) -- Strict 2-second bypass delay
+        
+        Notify("Flying to Location 2...")
+        FlyTo(ChainSave2)
+        Notify("Chain Completed!")
     else
-        Notify("Beide Chain Saves müssen gesetzt sein!")
+        Notify("Both Chain Saves required!")
     end
 end)
 
--- Section: Player TP
-CreateSection("👤 PLAYER TELEPORT", 20)
-
+CreateSection("PLAYER TELEPORT", 20)
 local playerContainer, getSelectedPlayer = CreatePlayerDropdown(ScrollFrame, 21)
-
-CreateButton("🎯 Zum Spieler teleportieren", 22, function()
+CreateButton("🎯 Fly To Selected Player", 22, function()
     local targetPlayer = getSelectedPlayer()
     if targetPlayer and targetPlayer.Character then
         local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if targetHRP then
-            TeleportTo(targetHRP.Position)
-            Notify("Teleportiert zu " .. targetPlayer.Name .. "!")
-        else
-            Notify("Spieler hat kein HumanoidRootPart!")
-        end
+        if targetHRP then FlyTo(targetHRP.Position) Notify("Arrived at player!") end
     else
-        Notify("Bitte wähle einen Spieler aus!")
+        Notify("Please select a player!")
     end
 end)
 
--- Section: ESP
-CreateSection("👁️ ESP SYSTEM", 30)
-
-local espButton = CreateButton("🔴 ESP: AUS", 31, function() end)
-local espEnabled = false
-
+CreateSection("ESP SYSTEM", 30)
+local espButton = CreateButton("⭐ ESP: OFF", 31, function() end)
 espButton.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
-    ToggleESP(espEnabled)
-    
-    if espEnabled then
-        espButton.Text = "🟢 ESP: AN"
-        espButton.BackgroundColor3 = Color3.fromRGB(60, 120, 60)
-        Notify("ESP aktiviert!")
+    ESPEnabled = not ESPEnabled
+    ToggleESP(ESPEnabled)
+    if ESPEnabled then
+        espButton.Text = "⭐ ESP: ON"
+        espButton.BackgroundColor3 = Color3.fromRGB(219, 63, 129)
     else
-        espButton.Text = "🔴 ESP: AUS"
-        espButton.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
-        Notify("ESP deaktiviert!")
+        espButton.Text = "⭐ ESP: OFF"
+        espButton.BackgroundColor3 = Color3.fromRGB(255, 140, 190)
     end
 end)
 
--- Section: Server
-CreateSection("🌐 SERVER OPTIONEN", 40)
-
-CreateButton("🔄 Rejoin Server", 41, function()
-    Notify("Rejoining...")
-    task.wait(0.5)
+CreateSection("SERVER OPTIONS", 40)
+CreateButton("🔄 Rejoin Current Server", 41, function()
     TeleportService:Teleport(game.PlaceId, LocalPlayer)
 end)
 
-CreateButton("🎲 Server Hop (Andere Lobby)", 42, function()
-    Notify("Suche anderen Server...")
+CreateButton("🎲 Server Hop (Via Proxy)", 42, function()
+    Notify("Searching via Proxy...")
+    local HttpService = game:GetService("HttpService")
+    local url = "https://games.roproxy.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     
     local success, servers = pcall(function()
-        local HttpService = game:GetService("HttpService")
-        local url = "[games.roblox.com](https://games.roblox.com/v1/games/)" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
         return HttpService:JSONDecode(game:HttpGet(url))
     end)
     
     if success and servers and servers.data then
         for _, server in pairs(servers.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+            if server.playing and server.playing < server.maxPlayers and server.id ~= game.JobId then
                 TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
                 return
             end
         end
-        Notify("Kein anderer Server gefunden!")
+        Notify("No alternative server found!")
     else
-        -- Fallback: Einfach neu joinen
+        Notify("Proxy Error! Rejoining...")
         TeleportService:Teleport(game.PlaceId, LocalPlayer)
     end
 end)
 
--- Friend Joiner
-CreateSection("👥 FRIEND JOINER", 50)
-
+CreateSection("FRIEND JOINER", 50)
 local FriendInput = Instance.new("TextBox")
-FriendInput.Name = "FriendInput"
-FriendInput.Size = UDim2.new(1, -10, 0, 35)
-FriendInput.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
+FriendInput.Size = UDim2.new(1, -10, 0, 36)
+FriendInput.BackgroundColor3 = Color3.fromRGB(255, 180, 215)
 FriendInput.BorderSizePixel = 0
-FriendInput.Text = ""
-FriendInput.PlaceholderText = "Username eingeben..."
+FriendInput.PlaceholderText = "Enter Username..."
+FriendInput.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
 FriendInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-FriendInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-FriendInput.Font = Enum.Font.Gotham
+FriendInput.Font = Enum.Font.GothamBold
 FriendInput.TextSize = 13
 FriendInput.LayoutOrder = 51
 FriendInput.Parent = ScrollFrame
 
 local FriendInputCorner = Instance.new("UICorner")
-FriendInputCorner.CornerRadius = UDim.new(0, 8)
+FriendInputCorner.CornerRadius = UDim.new(0, 12)
 FriendInputCorner.Parent = FriendInput
 
-CreateButton("🚀 Zu Freund joinen", 52, function()
+CreateButton("🚀 Teleport To Friend Server", 52, function()
     local username = FriendInput.Text
-    if username == "" then
-        Notify("Bitte Username eingeben!")
-        return
-    end
+    if username == "" then return end
     
-    Notify("Suche " .. username .. "...")
+    local success, userId = pcall(function() return Players:GetUserIdFromNameAsync(username) end)
+    if not success then Notify("User not found!") return end
     
-    local success, userId = pcall(function()
-        return Players:GetUserIdFromNameAsync(username)
-    end)
-    
-    if not success then
-        Notify("Spieler nicht gefunden!")
-        return
-    end
-    
-    local success2, result = pcall(function()
-        return TeleportService:GetPlayerPlaceInstanceAsync(userId)
-    end)
-    
-    if success2 then
-        local placeId, instanceId = result[1], result[2]
-        if placeId and instanceId then
-            TeleportService:TeleportToPlaceInstance(placeId, instanceId, LocalPlayer)
-        else
-            Notify(username .. " ist nicht in einem Spiel!")
-        end
+    local success2, result = pcall(function() return TeleportService:GetPlayerPlaceInstanceAsync(userId) end)
+    if success2 and result[2] then
+        TeleportService:TeleportToPlaceInstance(result[1], result[2], LocalPlayer)
     else
-        Notify("Konnte " .. username .. " nicht finden oder er ist offline!")
+        Notify("Friend is offline or untraceable!")
     end
 end)
 
--- ═══════════════════════════════════════════════════════════════
--- TOGGLE MIT STRG
--- ═══════════════════════════════════════════════════════════════
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    
+-- Toggle Configuration (CTRL)
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
     if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
         GuiVisible = not GuiVisible
         MainFrame.Visible = GuiVisible
     end
 end)
 
--- ═══════════════════════════════════════════════════════════════
--- FERTIG
--- ═══════════════════════════════════════════════════════════════
-
-Notify("GUI geladen! Strg zum Öffnen/Schließen")
-print("═══════════════════════════════════════")
-print("  ULTIMATE TP GUI ERFOLGREICH GELADEN")
-print("  Toggle: STRG (Ctrl)")
-print("═══════════════════════════════════════")
+Notify("EyzHub V2 Loaded! Press CTRL")
