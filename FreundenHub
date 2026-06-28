@@ -1,0 +1,739 @@
+-- ═══════════════════════════════════════════════════════════════
+-- ULTIMATE TELEPORT & ESP GUI
+-- Features: Save Locations, Chain TP, Player TP, ESP, Rejoin, Friend Join
+-- Toggle: Strg (Ctrl) zum Öffnen/Schließen
+-- ═══════════════════════════════════════════════════════════════
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local LocalPlayer = Players.LocalPlayer
+
+-- ═══════════════════════════════════════════════════════════════
+-- HAUPTVARIABLEN
+-- ═══════════════════════════════════════════════════════════════
+
+local SavedLocations = {}
+local ChainSave1 = nil
+local ChainSave2 = nil
+local ESPEnabled = false
+local ESPObjects = {}
+local GuiVisible = true
+
+-- ═══════════════════════════════════════════════════════════════
+-- GUI ERSTELLEN
+-- ═══════════════════════════════════════════════════════════════
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "UltimateTeleportGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Hauptframe
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 320, 0, 450)
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -225)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(100, 100, 255)
+MainStroke.Thickness = 2
+MainStroke.Parent = MainFrame
+
+-- Titelleiste
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Size = UDim2.new(1, 0, 0, 40)
+TitleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = TitleBar
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, 0, 1, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "⚡ ULTIMATE TP GUI ⚡"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextSize = 16
+TitleLabel.Parent = TitleBar
+
+-- Scrollbarer Container
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Name = "ScrollFrame"
+ScrollFrame.Size = UDim2.new(1, -20, 1, -50)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 45)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.ScrollBarThickness = 8
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 255)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 900)
+ScrollFrame.Parent = MainFrame
+
+local ListLayout = Instance.new("UIListLayout")
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ListLayout.Padding = UDim.new(0, 8)
+ListLayout.Parent = ScrollFrame
+
+-- ═══════════════════════════════════════════════════════════════
+-- HILFSFUNKTIONEN
+-- ═══════════════════════════════════════════════════════════════
+
+local function CreateSection(name, layoutOrder)
+    local Section = Instance.new("Frame")
+    Section.Name = name
+    Section.Size = UDim2.new(1, -10, 0, 30)
+    Section.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    Section.BorderSizePixel = 0
+    Section.LayoutOrder = layoutOrder
+    Section.Parent = ScrollFrame
+    
+    local SectionCorner = Instance.new("UICorner")
+    SectionCorner.CornerRadius = UDim.new(0, 8)
+    SectionCorner.Parent = Section
+    
+    local SectionLabel = Instance.new("TextLabel")
+    SectionLabel.Size = UDim2.new(1, 0, 1, 0)
+    SectionLabel.BackgroundTransparency = 1
+    SectionLabel.Text = "═══ " .. name .. " ═══"
+    SectionLabel.TextColor3 = Color3.fromRGB(150, 150, 255)
+    SectionLabel.Font = Enum.Font.GothamBold
+    SectionLabel.TextSize = 12
+    SectionLabel.Parent = Section
+    
+    return Section
+end
+
+local function CreateButton(text, layoutOrder, callback)
+    local Button = Instance.new("TextButton")
+    Button.Name = text
+    Button.Size = UDim2.new(1, -10, 0, 35)
+    Button.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    Button.BorderSizePixel = 0
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.GothamSemibold
+    Button.TextSize = 14
+    Button.LayoutOrder = layoutOrder
+    Button.AutoButtonColor = true
+    Button.Parent = ScrollFrame
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    ButtonCorner.Parent = Button
+    
+    Button.MouseEnter:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(80, 80, 120)
+    end)
+    
+    Button.MouseLeave:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    end)
+    
+    Button.MouseButton1Click:Connect(callback)
+    
+    return Button
+end
+
+local function GetCharacter()
+    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+end
+
+local function GetHumanoidRootPart()
+    local char = GetCharacter()
+    return char:FindFirstChild("HumanoidRootPart")
+end
+
+local function TeleportTo(position)
+    local hrp = GetHumanoidRootPart()
+    if hrp then
+        hrp.CFrame = CFrame.new(position)
+    end
+end
+
+local function Notify(text)
+    -- Einfache Notification
+    local NotifyGui = Instance.new("TextLabel")
+    NotifyGui.Size = UDim2.new(0, 300, 0, 40)
+    NotifyGui.Position = UDim2.new(0.5, -150, 0, 10)
+    NotifyGui.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    NotifyGui.BorderSizePixel = 0
+    NotifyGui.Text = text
+    NotifyGui.TextColor3 = Color3.fromRGB(100, 255, 100)
+    NotifyGui.Font = Enum.Font.GothamBold
+    NotifyGui.TextSize = 14
+    NotifyGui.Parent = ScreenGui
+    
+    local NotifyCorner = Instance.new("UICorner")
+    NotifyCorner.CornerRadius = UDim.new(0, 8)
+    NotifyCorner.Parent = NotifyGui
+    
+    task.delay(2, function()
+        NotifyGui:Destroy()
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════════════
+-- SAVE LOCATIONS CONTAINER
+-- ═══════════════════════════════════════════════════════════════
+
+local SavesContainer = Instance.new("Frame")
+SavesContainer.Name = "SavesContainer"
+SavesContainer.Size = UDim2.new(1, -10, 0, 10)
+SavesContainer.BackgroundTransparency = 1
+SavesContainer.LayoutOrder = 3
+SavesContainer.Parent = ScrollFrame
+
+local SavesLayout = Instance.new("UIListLayout")
+SavesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SavesLayout.Padding = UDim.new(0, 5)
+SavesLayout.Parent = SavesContainer
+
+local function UpdateSavesContainerSize()
+    local totalHeight = 0
+    for _, child in pairs(SavesContainer:GetChildren()) do
+        if child:IsA("Frame") then
+            totalHeight = totalHeight + child.AbsoluteSize.Y + 5
+        end
+    end
+    SavesContainer.Size = UDim2.new(1, -10, 0, math.max(totalHeight, 10))
+end
+
+local function CreateSaveEntry(index)
+    local Entry = Instance.new("Frame")
+    Entry.Name = "Save_" .. index
+    Entry.Size = UDim2.new(1, 0, 0, 30)
+    Entry.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
+    Entry.BorderSizePixel = 0
+    Entry.LayoutOrder = index
+    Entry.Parent = SavesContainer
+    
+    local EntryCorner = Instance.new("UICorner")
+    EntryCorner.CornerRadius = UDim.new(0, 6)
+    EntryCorner.Parent = Entry
+    
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(0, 80, 1, 0)
+    Label.Position = UDim2.new(0, 5, 0, 0)
+    Label.BackgroundTransparency = 1
+    Label.Text = "Save " .. index
+    Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 12
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = Entry
+    
+    local TpButton = Instance.new("TextButton")
+    TpButton.Size = UDim2.new(0, 50, 0, 22)
+    TpButton.Position = UDim2.new(1, -115, 0.5, -11)
+    TpButton.BackgroundColor3 = Color3.fromRGB(80, 150, 80)
+    TpButton.BorderSizePixel = 0
+    TpButton.Text = "TP"
+    TpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TpButton.Font = Enum.Font.GothamBold
+    TpButton.TextSize = 11
+    TpButton.Parent = Entry
+    
+    local TpCorner = Instance.new("UICorner")
+    TpCorner.CornerRadius = UDim.new(0, 4)
+    TpCorner.Parent = TpButton
+    
+    local DeleteButton = Instance.new("TextButton")
+    DeleteButton.Size = UDim2.new(0, 50, 0, 22)
+    DeleteButton.Position = UDim2.new(1, -60, 0.5, -11)
+    DeleteButton.BackgroundColor3 = Color3.fromRGB(150, 60, 60)
+    DeleteButton.BorderSizePixel = 0
+    DeleteButton.Text = "X"
+    DeleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    DeleteButton.Font = Enum.Font.GothamBold
+    DeleteButton.TextSize = 11
+    DeleteButton.Parent = Entry
+    
+    local DeleteCorner = Instance.new("UICorner")
+    DeleteCorner.CornerRadius = UDim.new(0, 4)
+    DeleteCorner.Parent = DeleteButton
+    
+    TpButton.MouseButton1Click:Connect(function()
+        if SavedLocations[index] then
+            TeleportTo(SavedLocations[index])
+            Notify("Teleportiert zu Save " .. index .. "!")
+        else
+            Notify("Save " .. index .. " ist leer!")
+        end
+    end)
+    
+    DeleteButton.MouseButton1Click:Connect(function()
+        SavedLocations[index] = nil
+        Entry:Destroy()
+        UpdateSavesContainerSize()
+        Notify("Save " .. index .. " gelöscht!")
+    end)
+    
+    UpdateSavesContainerSize()
+    return Entry
+end
+
+-- ═══════════════════════════════════════════════════════════════
+-- PLAYER DROPDOWN FÜR TP TO PLAYER
+-- ═══════════════════════════════════════════════════════════════
+
+local PlayerDropdownOpen = false
+local PlayerDropdownFrame = nil
+local SelectedPlayer = nil
+
+local function CreatePlayerDropdown(parent, layoutOrder)
+    local Container = Instance.new("Frame")
+    Container.Name = "PlayerSelector"
+    Container.Size = UDim2.new(1, -10, 0, 35)
+    Container.BackgroundTransparency = 1
+    Container.LayoutOrder = layoutOrder
+    Container.Parent = parent
+    
+    local DropdownButton = Instance.new("TextButton")
+    DropdownButton.Size = UDim2.new(1, 0, 0, 35)
+    DropdownButton.BackgroundColor3 = Color3.fromRGB(50, 50, 75)
+    DropdownButton.BorderSizePixel = 0
+    DropdownButton.Text = "▼ Spieler auswählen..."
+    DropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    DropdownButton.Font = Enum.Font.Gotham
+    DropdownButton.TextSize = 13
+    DropdownButton.Parent = Container
+    
+    local DropdownCorner = Instance.new("UICorner")
+    DropdownCorner.CornerRadius = UDim.new(0, 8)
+    DropdownCorner.Parent = DropdownButton
+    
+    local DropdownList = Instance.new("Frame")
+    DropdownList.Name = "DropdownList"
+    DropdownList.Size = UDim2.new(1, 0, 0, 0)
+    DropdownList.Position = UDim2.new(0, 0, 1, 5)
+    DropdownList.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+    DropdownList.BorderSizePixel = 0
+    DropdownList.ClipsDescendants = true
+    DropdownList.Visible = false
+    DropdownList.ZIndex = 10
+    DropdownList.Parent = DropdownButton
+    
+    local ListCorner = Instance.new("UICorner")
+    ListCorner.CornerRadius = UDim.new(0, 8)
+    ListCorner.Parent = DropdownList
+    
+    local PlayerListLayout = Instance.new("UIListLayout")
+    PlayerListLayout.SortOrder = Enum.SortOrder.Name
+    PlayerListLayout.Padding = UDim.new(0, 2)
+    PlayerListLayout.Parent = DropdownList
+    
+    local function RefreshPlayerList()
+        for _, child in pairs(DropdownList:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+        
+        local playerCount = 0
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                playerCount = playerCount + 1
+                local PlayerButton = Instance.new("TextButton")
+                PlayerButton.Size = UDim2.new(1, -4, 0, 25)
+                PlayerButton.Position = UDim2.new(0, 2, 0, 0)
+                PlayerButton.BackgroundColor3 = Color3.fromRGB(55, 55, 80)
+                PlayerButton.BorderSizePixel = 0
+                PlayerButton.Text = player.Name
+                PlayerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+                PlayerButton.Font = Enum.Font.Gotham
+                PlayerButton.TextSize = 12
+                PlayerButton.ZIndex = 11
+                PlayerButton.Parent = DropdownList
+                
+                local PBCorner = Instance.new("UICorner")
+                PBCorner.CornerRadius = UDim.new(0, 4)
+                PBCorner.Parent = PlayerButton
+                
+                PlayerButton.MouseButton1Click:Connect(function()
+                    SelectedPlayer = player
+                    DropdownButton.Text = "▼ " .. player.Name
+                    DropdownList.Visible = false
+                    PlayerDropdownOpen = false
+                    Container.Size = UDim2.new(1, -10, 0, 35)
+                end)
+            end
+        end
+        
+        DropdownList.Size = UDim2.new(1, 0, 0, math.min(playerCount * 27, 150))
+    end
+    
+    DropdownButton.MouseButton1Click:Connect(function()
+        PlayerDropdownOpen = not PlayerDropdownOpen
+        DropdownList.Visible = PlayerDropdownOpen
+        
+        if PlayerDropdownOpen then
+            RefreshPlayerList()
+            Container.Size = UDim2.new(1, -10, 0, 35 + DropdownList.Size.Y.Offset + 5)
+        else
+            Container.Size = UDim2.new(1, -10, 0, 35)
+        end
+    end)
+    
+    return Container, function() return SelectedPlayer end
+end
+
+-- ═══════════════════════════════════════════════════════════════
+-- ESP SYSTEM
+-- ═══════════════════════════════════════════════════════════════
+
+local function CreateESP(player)
+    if player == LocalPlayer then return end
+    if ESPObjects[player] then return end
+    
+    local espData = {}
+    
+    local function UpdateESP()
+        if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+            return
+        end
+        
+        local hrp = player.Character.HumanoidRootPart
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        
+        -- Billboard für Name und Distanz
+        if not espData.Billboard then
+            local Billboard = Instance.new("BillboardGui")
+            Billboard.Name = "ESP_" .. player.Name
+            Billboard.Size = UDim2.new(0, 150, 0, 50)
+            Billboard.StudsOffset = Vector3.new(0, 3, 0)
+            Billboard.AlwaysOnTop = true
+            Billboard.Parent = hrp
+            
+            local NameLabel = Instance.new("TextLabel")
+            NameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+            NameLabel.BackgroundTransparency = 1
+            NameLabel.Text = player.Name
+            NameLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            NameLabel.Font = Enum.Font.GothamBold
+            NameLabel.TextSize = 14
+            NameLabel.TextStrokeTransparency = 0.5
+            NameLabel.Parent = Billboard
+            
+            local DistanceLabel = Instance.new("TextLabel")
+            DistanceLabel.Name = "Distance"
+            DistanceLabel.Size = UDim2.new(1, 0, 0.5, 0)
+            DistanceLabel.Position = UDim2.new(0, 0, 0.5, 0)
+            DistanceLabel.BackgroundTransparency = 1
+            DistanceLabel.Text = "0m"
+            DistanceLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
+            DistanceLabel.Font = Enum.Font.Gotham
+            DistanceLabel.TextSize = 12
+            DistanceLabel.TextStrokeTransparency = 0.5
+            DistanceLabel.Parent = Billboard
+            
+            espData.Billboard = Billboard
+            espData.DistanceLabel = DistanceLabel
+        end
+        
+        -- Highlight
+        if not espData.Highlight then
+            local Highlight = Instance.new("Highlight")
+            Highlight.Name = "ESP_Highlight"
+            Highlight.FillColor = Color3.fromRGB(255, 50, 50)
+            Highlight.FillTransparency = 0.7
+            Highlight.OutlineColor = Color3.fromRGB(255, 100, 100)
+            Highlight.OutlineTransparency = 0
+            Highlight.Parent = player.Character
+            
+            espData.Highlight = Highlight
+        end
+        
+        -- Distanz updaten
+        local localHRP = GetHumanoidRootPart()
+        if localHRP and espData.DistanceLabel then
+            local distance = (hrp.Position - localHRP.Position).Magnitude
+            espData.DistanceLabel.Text = string.format("%.0fm", distance)
+            
+            -- Health anzeigen
+            if humanoid then
+                local health = math.floor(humanoid.Health)
+                local maxHealth = math.floor(humanoid.MaxHealth)
+                espData.DistanceLabel.Text = string.format("%.0fm | %d/%d HP", distance, health, maxHealth)
+            end
+        end
+    end
+    
+    ESPObjects[player] = espData
+    
+    -- Update-Loop für diesen Spieler
+    espData.Connection = RunService.RenderStepped:Connect(function()
+        if ESPEnabled then
+            UpdateESP()
+        end
+    end)
+    
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        if ESPEnabled then
+            -- ESP neu erstellen
+            if espData.Billboard then espData.Billboard:Destroy() espData.Billboard = nil end
+            if espData.Highlight then espData.Highlight:Destroy() espData.Highlight = nil end
+        end
+    end)
+end
+
+local function RemoveESP(player)
+    if ESPObjects[player] then
+        if ESPObjects[player].Billboard then
+            ESPObjects[player].Billboard:Destroy()
+        end
+        if ESPObjects[player].Highlight then
+            ESPObjects[player].Highlight:Destroy()
+        end
+        if ESPObjects[player].Connection then
+            ESPObjects[player].Connection:Disconnect()
+        end
+        ESPObjects[player] = nil
+    end
+end
+
+local function ToggleESP(enabled)
+    ESPEnabled = enabled
+    
+    if enabled then
+        for _, player in pairs(Players:GetPlayers()) do
+            CreateESP(player)
+        end
+    else
+        for player, _ in pairs(ESPObjects) do
+            RemoveESP(player)
+        end
+    end
+end
+
+-- Neue Spieler tracken
+Players.PlayerAdded:Connect(function(player)
+    if ESPEnabled then
+        task.wait(2)
+        CreateESP(player)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    RemoveESP(player)
+end)
+
+-- ═══════════════════════════════════════════════════════════════
+-- GUI ELEMENTE ERSTELLEN
+-- ═══════════════════════════════════════════════════════════════
+
+-- Section: Location Saves
+CreateSection("📍 LOCATION SAVES", 1)
+
+local saveIndex = 0
+CreateButton("➕ Neue Position speichern", 2, function()
+    local hrp = GetHumanoidRootPart()
+    if hrp then
+        saveIndex = saveIndex + 1
+        SavedLocations[saveIndex] = hrp.Position
+        CreateSaveEntry(saveIndex)
+        Notify("Position " .. saveIndex .. " gespeichert!")
+    end
+end)
+
+-- Section: Chain Teleport
+CreateSection("⛓️ CHAIN TELEPORT", 10)
+
+local chainSave1Set = false
+local chainSave2Set = false
+
+local ChainSave1Btn = CreateButton("🔴 Chain Save 1 setzen", 11, function()
+    local hrp = GetHumanoidRootPart()
+    if hrp then
+        ChainSave1 = hrp.Position
+        chainSave1Set = true
+        Notify("Chain Save 1 gesetzt!")
+    end
+end)
+
+local ChainSave2Btn = CreateButton("🔵 Chain Save 2 setzen", 12, function()
+    local hrp = GetHumanoidRootPart()
+    if hrp then
+        ChainSave2 = hrp.Position
+        chainSave2Set = true
+        Notify("Chain Save 2 gesetzt!")
+    end
+end)
+
+CreateButton("⚡ CHAIN TP AUSFÜHREN", 13, function()
+    if ChainSave1 and ChainSave2 then
+        TeleportTo(ChainSave1)
+        Notify("TP zu Save 1...")
+        task.wait(1)
+        TeleportTo(ChainSave2)
+        Notify("TP zu Save 2!")
+    else
+        Notify("Beide Chain Saves müssen gesetzt sein!")
+    end
+end)
+
+-- Section: Player TP
+CreateSection("👤 PLAYER TELEPORT", 20)
+
+local playerContainer, getSelectedPlayer = CreatePlayerDropdown(ScrollFrame, 21)
+
+CreateButton("🎯 Zum Spieler teleportieren", 22, function()
+    local targetPlayer = getSelectedPlayer()
+    if targetPlayer and targetPlayer.Character then
+        local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if targetHRP then
+            TeleportTo(targetHRP.Position)
+            Notify("Teleportiert zu " .. targetPlayer.Name .. "!")
+        else
+            Notify("Spieler hat kein HumanoidRootPart!")
+        end
+    else
+        Notify("Bitte wähle einen Spieler aus!")
+    end
+end)
+
+-- Section: ESP
+CreateSection("👁️ ESP SYSTEM", 30)
+
+local espButton = CreateButton("🔴 ESP: AUS", 31, function() end)
+local espEnabled = false
+
+espButton.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    ToggleESP(espEnabled)
+    
+    if espEnabled then
+        espButton.Text = "🟢 ESP: AN"
+        espButton.BackgroundColor3 = Color3.fromRGB(60, 120, 60)
+        Notify("ESP aktiviert!")
+    else
+        espButton.Text = "🔴 ESP: AUS"
+        espButton.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+        Notify("ESP deaktiviert!")
+    end
+end)
+
+-- Section: Server
+CreateSection("🌐 SERVER OPTIONEN", 40)
+
+CreateButton("🔄 Rejoin Server", 41, function()
+    Notify("Rejoining...")
+    task.wait(0.5)
+    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+end)
+
+CreateButton("🎲 Server Hop (Andere Lobby)", 42, function()
+    Notify("Suche anderen Server...")
+    
+    local success, servers = pcall(function()
+        local HttpService = game:GetService("HttpService")
+        local url = "[games.roblox.com](https://games.roblox.com/v1/games/)" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+        return HttpService:JSONDecode(game:HttpGet(url))
+    end)
+    
+    if success and servers and servers.data then
+        for _, server in pairs(servers.data) do
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, LocalPlayer)
+                return
+            end
+        end
+        Notify("Kein anderer Server gefunden!")
+    else
+        -- Fallback: Einfach neu joinen
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end
+end)
+
+-- Friend Joiner
+CreateSection("👥 FRIEND JOINER", 50)
+
+local FriendInput = Instance.new("TextBox")
+FriendInput.Name = "FriendInput"
+FriendInput.Size = UDim2.new(1, -10, 0, 35)
+FriendInput.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
+FriendInput.BorderSizePixel = 0
+FriendInput.Text = ""
+FriendInput.PlaceholderText = "Username eingeben..."
+FriendInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+FriendInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+FriendInput.Font = Enum.Font.Gotham
+FriendInput.TextSize = 13
+FriendInput.LayoutOrder = 51
+FriendInput.Parent = ScrollFrame
+
+local FriendInputCorner = Instance.new("UICorner")
+FriendInputCorner.CornerRadius = UDim.new(0, 8)
+FriendInputCorner.Parent = FriendInput
+
+CreateButton("🚀 Zu Freund joinen", 52, function()
+    local username = FriendInput.Text
+    if username == "" then
+        Notify("Bitte Username eingeben!")
+        return
+    end
+    
+    Notify("Suche " .. username .. "...")
+    
+    local success, userId = pcall(function()
+        return Players:GetUserIdFromNameAsync(username)
+    end)
+    
+    if not success then
+        Notify("Spieler nicht gefunden!")
+        return
+    end
+    
+    local success2, result = pcall(function()
+        return TeleportService:GetPlayerPlaceInstanceAsync(userId)
+    end)
+    
+    if success2 then
+        local placeId, instanceId = result[1], result[2]
+        if placeId and instanceId then
+            TeleportService:TeleportToPlaceInstance(placeId, instanceId, LocalPlayer)
+        else
+            Notify(username .. " ist nicht in einem Spiel!")
+        end
+    else
+        Notify("Konnte " .. username .. " nicht finden oder er ist offline!")
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════════════
+-- TOGGLE MIT STRG
+-- ═══════════════════════════════════════════════════════════════
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.KeyCode.LeftControl or input.KeyCode == Enum.KeyCode.RightControl then
+        GuiVisible = not GuiVisible
+        MainFrame.Visible = GuiVisible
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════════════
+-- FERTIG
+-- ═══════════════════════════════════════════════════════════════
+
+Notify("GUI geladen! Strg zum Öffnen/Schließen")
+print("═══════════════════════════════════════")
+print("  ULTIMATE TP GUI ERFOLGREICH GELADEN")
+print("  Toggle: STRG (Ctrl)")
+print("═══════════════════════════════════════")
