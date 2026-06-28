@@ -64,17 +64,18 @@ local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 20)
 TitleCorner.Parent = TitleBar
 
--- Subtitle for Credits
+-- Subtitle for Credits (Design-Bereich: Bleibt fett)
 local CreditsLabel = Instance.new("TextLabel")
 CreditsLabel.Size = UDim2.new(1, 0, 0.4, 0)
 CreditsLabel.Position = UDim2.new(0, 0, 0.6, 0)
 CreditsLabel.BackgroundTransparency = 1
-CreditsLabel.Text = "★ Made by Freunden1234 ★"
+CreditsLabel.Text = "★ Made by TTTSkorpion ★"
 CreditsLabel.TextColor3 = Color3.fromRGB(255, 235, 133) -- Yellow Star Accent Color
 CreditsLabel.Font = Enum.Font.GothamBold
 CreditsLabel.TextSize = 11
 CreditsLabel.Parent = TitleBar
 
+-- Titel (Design-Bereich: Bleibt Fredoka/Fett)
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Size = UDim2.new(1, 0, 0.6, 0)
 TitleLabel.Position = UDim2.new(0, 0, 0, 2)
@@ -103,7 +104,7 @@ ListLayout.Padding = UDim.new(0, 8)
 ListLayout.Parent = ScrollFrame
 
 -- ═══════════════════════════════════════════════════════════════
--- UTILITY FUNCTIONS
+-- UTILITY FUNCTIONS (Hier wurde die Schrift dünner gemacht)
 -- ═══════════════════════════════════════════════════════════════
 
 local function CreateSection(name, layoutOrder)
@@ -124,7 +125,7 @@ local function CreateSection(name, layoutOrder)
     SectionLabel.BackgroundTransparency = 1
     SectionLabel.Text = "★ " .. name .. " ★"
     SectionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SectionLabel.Font = Enum.Font.GothamBold
+    SectionLabel.Font = Enum.Font.Gotham -- Dünner gemacht
     SectionLabel.TextSize = 11
     SectionLabel.Parent = Section
     
@@ -139,7 +140,7 @@ local function CreateButton(text, layoutOrder, callback)
     Button.BorderSizePixel = 0
     Button.Text = text
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Font = Enum.Font.GothamBold
+    Button.Font = Enum.Font.Gotham -- Dünner gemacht
     Button.TextSize = 13
     Button.LayoutOrder = layoutOrder
     Button.AutoButtonColor = true
@@ -189,7 +190,7 @@ local function Notify(text)
     NotifyGui.BorderSizePixel = 0
     NotifyGui.Text = "💕 " .. text
     NotifyGui.TextColor3 = Color3.fromRGB(255, 255, 255)
-    NotifyGui.Font = Enum.Font.GothamBold
+    NotifyGui.Font = Enum.Font.Gotham -- Dünner gemacht
     NotifyGui.TextSize = 13
     NotifyGui.ZIndex = 100
     NotifyGui.Parent = ScreenGui
@@ -253,7 +254,7 @@ local function CreateSaveEntry(index)
     Label.BackgroundTransparency = 1
     Label.Text = "Position " .. index
     Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.Font = Enum.Font.GothamBold
+    Label.Font = Enum.Font.Gotham -- Dünner gemacht
     Label.TextSize = 12
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Entry
@@ -265,7 +266,7 @@ local function CreateSaveEntry(index)
     TpButton.BorderSizePixel = 0
     TpButton.Text = "FLY"
     TpButton.TextColor3 = Color3.fromRGB(219, 63, 129)
-    TpButton.Font = Enum.Font.GothamBold
+    TpButton.Font = Enum.Font.Gotham -- Dünner gemacht
     TpButton.TextSize = 11
     TpButton.Parent = Entry
     
@@ -280,7 +281,7 @@ local function CreateSaveEntry(index)
     DeleteButton.BorderSizePixel = 0
     DeleteButton.Text = "REMOVE"
     DeleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    DeleteButton.Font = Enum.Font.GothamBold
+    DeleteButton.Font = Enum.Font.Gotham -- Dünner gemacht
     DeleteButton.TextSize = 9
     DeleteButton.Parent = Entry
     
@@ -327,7 +328,7 @@ local function CreatePlayerDropdown(parent, layoutOrder)
     DropdownButton.BorderSizePixel = 0
     DropdownButton.Text = "▼ Select Player..."
     DropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    DropdownButton.Font = Enum.Font.GothamBold
+    DropdownButton.Font = Enum.Font.Gotham -- Dünner gemacht
     DropdownButton.TextSize = 13
     DropdownButton.Parent = Container
     
@@ -371,7 +372,7 @@ local function CreatePlayerDropdown(parent, layoutOrder)
                 PlayerButton.BorderSizePixel = 0
                 PlayerButton.Text = player.Name
                 PlayerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-                PlayerButton.Font = Enum.Font.GothamBold
+                PlayerButton.Font = Enum.Font.Gotham -- Dünner gemacht
                 PlayerButton.TextSize = 11
                 PlayerButton.ZIndex = 11
                 PlayerButton.Parent = DropdownList
@@ -431,7 +432,7 @@ local function CreateESP(player)
         NameLabel.BackgroundTransparency = 1
         NameLabel.Text = player.Name
         NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        NameLabel.Font = Enum.Font.GothamBold
+        NameLabel.Font = Enum.Font.Gotham -- Dünner gemacht
         NameLabel.TextSize = 13
         NameLabel.TextStrokeColor3 = Color3.fromRGB(219, 63, 129)
         NameLabel.TextStrokeTransparency = 0
@@ -443,7 +444,7 @@ local function CreateESP(player)
         DistanceLabel.BackgroundTransparency = 1
         DistanceLabel.Text = "Loading..."
         DistanceLabel.TextColor3 = Color3.fromRGB(255, 235, 133)
-        DistanceLabel.Font = Enum.Font.GothamBold
+        DistanceLabel.Font = Enum.Font.Gotham -- Dünner gemacht
         DistanceLabel.TextSize = 11
         DistanceLabel.TextStrokeColor3 = Color3.fromRGB(219, 63, 129)
         DistanceLabel.TextStrokeTransparency = 0
@@ -608,7 +609,7 @@ FriendInput.BorderSizePixel = 0
 FriendInput.PlaceholderText = "Enter Username..."
 FriendInput.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
 FriendInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-FriendInput.Font = Enum.Font.GothamBold
+FriendInput.Font = Enum.Font.Gotham -- Dünner gemacht
 FriendInput.TextSize = 13
 FriendInput.LayoutOrder = 51
 FriendInput.Parent = ScrollFrame
