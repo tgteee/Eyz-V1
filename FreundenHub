@@ -1,6 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════
 -- EYZHUB V2 - MADE BY TTTSKORPION
--- Style Inspired by image_18a4bf.png (Cute Pink/Y2K Aesthetic)
+-- Style Inspired by image_19195c.png (Cute Pink/Y2K Aesthetic)
 -- ═══════════════════════════════════════════════════════════════
 
 local Players = game:GetService("Players")
@@ -23,7 +23,7 @@ local GuiVisible = true
 local FlySpeed = 260 
 
 -- ═══════════════════════════════════════════════════════════════
--- CUTE PINK GUI CREATION (image_18a4bf.png Inspired)
+-- CUTE PINK GUI CREATION (image_19195c.png Inspired)
 -- ═══════════════════════════════════════════════════════════════
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -66,10 +66,10 @@ local CreditsLabel = Instance.new("TextLabel")
 CreditsLabel.Size = UDim2.new(1, 0, 0.4, 0)
 CreditsLabel.Position = UDim2.new(0, 0, 0.6, 0)
 CreditsLabel.BackgroundTransparency = 1
-CreditsLabel.Text = "★ Made by TTTSkorpion ★"
+CreditsLabel.Text = "★ Made by TTTSKorpion ★"
 CreditsLabel.TextColor3 = Color3.fromRGB(255, 235, 133) 
-CreditsLabel.Font = Enum.Font.GothamBold
-CreditsLabel.TextSize = 11
+CreditsLabel.Font = Enum.Font.SourceSans
+CreditsLabel.TextSize = 13
 CreditsLabel.Parent = TitleBar
 
 local TitleLabel = Instance.new("TextLabel")
@@ -78,7 +78,7 @@ TitleLabel.Position = UDim2.new(0, 0, 0, 2)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Text = "🎀 EyzHub V2 🎀"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.Font = Enum.Font.FredokaOne or Enum.Font.GothamBold
+TitleLabel.Font = Enum.Font.SourceSans
 TitleLabel.TextSize = 18
 TitleLabel.Parent = TitleBar
 
@@ -99,7 +99,7 @@ ListLayout.Padding = UDim.new(0, 8)
 ListLayout.Parent = ScrollFrame
 
 -- ═══════════════════════════════════════════════════════════════
--- UTILITY FUNCTIONS
+-- UTILITY FUNCTIONS (Fonts exactly like "Select Player")
 -- ═══════════════════════════════════════════════════════════════
 
 local function CreateSection(name, layoutOrder)
